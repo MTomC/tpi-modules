@@ -1,0 +1,288 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://utn.edu.ar/tpi-ia-2026/scene.schema.json",
+  "title": "TPI IA 2026 SceneJSON",
+  "type": "object",
+  "required": [
+    "image",
+    "objects",
+    "relations"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "image": {
+      "type": "object",
+      "required": [
+        "id",
+        "width",
+        "height"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "objects": {
+      "type": "array",
+      "maxItems": 300,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "category_id",
+          "confidence",
+          "bbox",
+          "mask",
+          "centroid",
+          "area_ratio",
+          "position",
+          "size"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "category_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "bbox": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "minItems": 4,
+            "maxItems": 4
+          },
+          "mask": {
+            "type": "object",
+            "required": [
+              "size",
+              "counts"
+            ],
+            "additionalProperties": true,
+            "properties": {
+              "size": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                ],
+                "minItems": 2,
+                "maxItems": 2
+              },
+              "counts": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            }
+          },
+          "centroid": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "area_ratio": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 1
+          },
+          "position": {
+            "enum": [
+              "top_left",
+              "top_center",
+              "top_right",
+              "middle_left",
+              "center",
+              "middle_right",
+              "bottom_left",
+              "bottom_center",
+              "bottom_right"
+            ]
+          },
+          "size": {
+            "enum": [
+              "small",
+              "medium",
+              "large"
+            ]
+          }
+        }
+      }
+    },
+    "relations": {
+      "type": "array",
+      "maxItems": 20000,
+      "items": {
+        "type": "object",
+        "required": [
+          "subject",
+          "predicate",
+          "object"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "subject": {
+            "type": "string",
+            "minLength": 1
+          },
+          "predicate": {
+            "enum": [
+              "left_of",
+              "right_of",
+              "above",
+              "below",
+              "overlaps"
+            ]
+          },
+          "object": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "questions": {
+      "type": "array",
+      "maxItems": 60,
+      "items": {
+        "$ref": "#/$defs/questionAnswer"
+      }
+    },
+    "questions_llm": {
+      "type": "array",
+      "maxItems": 60,
+      "items": {
+        "$ref": "#/$defs/questionAnswerLLM"
+      }
+    }
+  },
+  "$defs": {
+    "questionAnswer": {
+      "type": "object",
+      "required": [
+        "question_id",
+        "type",
+        "question",
+        "answer",
+        "normalized_answer",
+        "evidence",
+        "confidence"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "question_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "enum": [
+            "description",
+            "count",
+            "existence",
+            "position",
+            "size",
+            "relation"
+          ]
+        },
+        "question": {
+          "type": "string",
+          "minLength": 1
+        },
+        "answer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "normalized_answer": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "string",
+              "minLength": 1
+            }
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "questionAnswerLLM": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/questionAnswer"
+        },
+        {
+          "type": "object",
+          "required": [
+            "interpreted_query"
+          ],
+          "properties": {
+            "interpreted_query": {
+              "type": "object"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
